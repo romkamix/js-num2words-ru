@@ -1,76 +1,12 @@
 // import plural from "./_plural";
 import plural from "js-plural-ru";
+import { lt20, gte20, gte100, degrees } from "./_ru";
 
-const a = [
-  "",
-  "один",
-  "два",
-  "три",
-  "четыре",
-  "пять",
-  "шесть",
-  "семь",
-  "восемь",
-  "девять",
-  "десять",
-  "одиннадцать",
-  "двенадцать",
-  "тринадцать",
-  "четырнадцать",
-  "пятнадцать",
-  "шестнадцать",
-  "семнадцать",
-  "восемнадцать",
-  "девятнадцать",
-];
-
-const b = [
-  "",
-  "",
-  "двадцать",
-  "тридцать",
-  "сорок",
-  "пятьдесят",
-  "шестьдесят",
-  "семьдесят",
-  "восемьдесят",
-  "девяносто",
-];
-
-const c = [
-  "",
-  "сто",
-  "двести",
-  "триста",
-  "четыреста",
-  "пятьсот",
-  "шестьсот",
-  "семьсот",
-  "восемьсот",
-  "девятьсот",
-];
-
-const replaces = [
-  ["один тысяча", "одна тысяча"],
-  ["два тысячи", "две тысячи"],
-];
-
-const degrees = [
-  [],
-  ["тысяча", "тысячи", "тысяч"],
-  ["миллион", "миллиона", "миллионов"],
-  ["миллиард", "миллиарда", "миллиардов"],
-  ["биллион", "биллиона", "биллионов"],
-  ["биллиард", "биллиарда", "биллиардов"],
-  ["триллион", "триллиона", "триллионов"],
-  ["триллиард", "триллиарда", "триллиардов"],
-];
-
-const getLT20 = (n) => a[Number(n)],
-  getGT20 = (n) => [b[n[0]], a[n[1]]].join(" "),
-  getGT99 = (n) =>
-    [c[n[0]], getLT20(n.slice(1)) || getGT20(n.slice(1))].join(" "),
-  getN = (n, i) => [getGT99(n), plural(n, degrees[i])].join(" "),
+const getLT20 = (n) => lt20[Number(n)],
+  getGTE20 = (n) => [gte20[n[0]], lt20[n[1]]].join(" "),
+  getGTE100 = (n) =>
+    [gte100[n[0]], getLT20(n.slice(1)) || getGTE20(n.slice(1))].join(" "),
+  getN = (n, i) => [getGTE100(n), plural(n, degrees[i])].join(" "),
   regex = /(\d{3})/g;
 
 export default (input) => {
@@ -80,28 +16,25 @@ export default (input) => {
     return "";
   }
 
+  // if (number > INPUT_VALUE_LIMIT) {
+  //   return undefined
+  // }
+
+  // Number.MAX_SAFE_INTEGER;
+
   if (num === 0) {
     return "ноль";
   }
 
-  console.log([
-    ...`00${num}`
-      .slice(`00${num}`.length % 3)
-      .slice(degrees.length * -3)
-      .matchAll(regex),
-  ]);
+  const str = `00${num}`;
 
-  const matches = [
-    ...`00${num}`
-      .slice(`00${num}`.length % 3)
-      .slice(degrees.length * -3)
-      .matchAll(regex),
-  ]
+  return str
+    .slice(str.length % 3)
+    .match(regex)
     .reverse()
-    .map((e, i) => getN(e[0], i))
-    .reverse();
-
-  console.log(matches);
-
-  return matches.join(" ").trim();
+    .map(getN)
+    .reverse()
+    .join(" ")
+    .trim()
+    .replace(/\s{2,}/, " ");
 };
